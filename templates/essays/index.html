@@ -1,0 +1,563 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+  .hero-section {
+    text-align: center;
+    padding: 3rem 0;
+    margin-bottom: 3rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 30px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="hexagons" width="30" height="30" patternUnits="userSpaceOnUse"><polygon points="15,1 28,8 28,22 15,29 2,22 2,8" stroke="white" stroke-opacity="0.1" stroke-width="1" fill="none"/></pattern></defs><rect width="100" height="100" fill="url(%23hexagons)"/></svg>');
+    opacity: 0.3;
+  }
+
+  .hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #000000 0%, #000000 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-subtitle {
+    font-size: 1.3rem;
+    color: rgba(62, 62, 62, 0.9);
+    font-weight: 400;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 1;
+    line-height: 1.6;
+  }
+
+  .hero-features {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+    margin-top: 2rem;
+  }
+
+  .hero-feature {
+    display: flex;
+    align-items: center;
+    color: rgba(4, 10, 57, 0.8);
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+
+  .hero-feature i {
+    margin-right: 0.5rem;
+    color: #5a0c0e;
+    font-size: 1.1rem;
+  }
+
+  .form-section {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 24px;
+    padding: 2.5rem;
+    height: fit-content;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .form-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><defs><pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M 10 0 L 10 60 M 0 10 L 60 10" stroke="white" stroke-opacity="0.05" stroke-width="1"/></pattern></defs><rect width="60" height="60" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+  }
+
+  .form-title {
+    color: rgb(9, 90, 0);
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+  }
+
+  .form-title i {
+    margin-right: 1rem;
+    color: #79004d;
+    font-size: 2rem;
+  }
+
+  .form-subtitle {
+    color: rgba(92, 97, 1, 0.7);
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 1;
+    font-size: 0.95rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .form-control-modern {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 1rem;
+    font-size: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #2d3748;
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .form-control-modern:focus {
+    background: rgb(210, 234, 234);
+    border-color: #101010;
+    box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.15);
+    transform: translateY(-2px);
+  }
+
+  .form-control-modern::placeholder {
+    color: #555657;
+    font-weight: 400;
+  }
+
+  .form-label-modern {
+    color: rgb(0, 0, 0);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+  }
+
+  .textarea-modern {
+    min-height: 200px;
+    resize: vertical;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+  }
+
+  .btn-submit {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 1rem 2rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  }
+
+  .btn-submit::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .btn-submit:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+  }
+
+  .btn-submit:hover::before {
+    left: 100%;
+  }
+
+  .btn-submit:active {
+    transform: translateY(-1px);
+  }
+
+  .recent-essays-section {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 24px;
+    padding: 2.5rem;
+    height: fit-content;
+  }
+
+  .recent-title {
+    color: rgb(20, 9, 102);
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .recent-title i {
+    margin-right: 1rem;
+    color: #71790b;
+    font-size: 2rem;
+  }
+
+  .recent-subtitle {
+    color: rgba(60, 54, 54, 0.7);
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+  }
+
+  .essay-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .essay-item {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .essay-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .essay-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .essay-item:hover::before {
+    transform: translateX(0);
+  }
+
+  .essay-link {
+    color: rgb(215, 18, 18);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .essay-link:hover {
+    color: #4facfe;
+  }
+
+  .essay-meta {
+    color: rgba(17, 17, 17, 0.6);
+    font-size: 0.85rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .essay-score {
+    background: linear-gradient(135deg, #4f6c85 0%, #1e4b4d 100%);
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .no-essays {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #3d4a5c; 
+  }
+
+  .no-essays i {
+    font-size: 3rem;
+    color: #8a9bb0;
+    margin-bottom: 1rem;
+  }
+
+  .no-essays h6 {
+    color: #1a1a2e;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+  }
+
+  .no-essays p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #3d4a5c;
+  }
+
+  .floating-elements {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .floating-icon {
+    position: absolute;
+    color: rgba(255, 255, 255, 0.1);
+    font-size: 2rem;
+    animation: float-random 8s infinite ease-in-out;
+  }
+
+  .floating-icon:nth-child(1) {
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+  }
+
+  .floating-icon:nth-child(2) {
+    top: 20%;
+    right: 15%;
+    animation-delay: 2s;
+  }
+
+  .floating-icon:nth-child(3) {
+    bottom: 30%;
+    left: 20%;
+    animation-delay: 4s;
+  }
+
+  .floating-icon:nth-child(4) {
+    bottom: 15%;
+    right: 10%;
+    animation-delay: 6s;
+  }
+
+  @keyframes float-random {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    25% { transform: translateY(-15px) rotate(90deg); }
+    50% { transform: translateY(-30px) rotate(180deg); }
+    75% { transform: translateY(-15px) rotate(270deg); }
+  }
+
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2.5rem;
+    }
+    
+    .hero-subtitle {
+      font-size: 1.1rem;
+    }
+    
+    .hero-features {
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .form-section, .recent-essays-section {
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .form-title, .recent-title {
+      font-size: 1.5rem;
+    }
+    
+    .essay-item {
+      padding: 1.25rem;
+    }
+    
+    .essay-meta {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="floating-elements">
+  <i class="fas fa-graduation-cap floating-icon"></i>
+  <i class="fas fa-pencil-alt floating-icon"></i>
+  <i class="fas fa-book floating-icon"></i>
+  <i class="fas fa-lightbulb floating-icon"></i>
+</div>
+
+<div class="container">
+  <div class="hero-section">
+    <h1 class="hero-title">
+      <i class="fas fa-magic me-3"></i>
+      AI Essay Grader
+    </h1>
+    <p class="hero-subtitle">
+      Get instant, detailed feedback on your essays with advanced AI analysis.<br>
+      Improve your writing skills with personalized insights and suggestions.
+    </p>
+    <div class="hero-features">
+      <div class="hero-feature">
+        <i class="fas fa-robot"></i>
+        AI-Powered Analysis
+      </div>
+      <div class="hero-feature">
+        <i class="fas fa-chart-line"></i>
+        Performance Tracking
+      </div>
+      <div class="hero-feature">
+        <i class="fas fa-lightbulb"></i>
+        Smart Suggestions
+      </div>
+      <div class="hero-feature">
+        <i class="fas fa-zap"></i>
+        Instant Results
+      </div>
+    </div>
+  </div>
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="form-section">
+        <h5 class="form-title">
+          <i class="fas fa-pen-fancy"></i>
+          Submit Your Essay
+        </h5>
+        <p class="form-subtitle">
+          Upload your essay and get comprehensive feedback in seconds. Our AI analyzes grammar, style, readability, and more.
+        </p>
+        
+        <form method="post" action="{% url 'essays:submit' %}">
+          {% csrf_token %}
+          
+          <div class="form-group">
+            <label class="form-label-modern" for="{{ form.title.id_for_label }}">
+              <i class="fas fa-file-text me-2"></i>Essay Title
+            </label>
+            <input type="text" 
+                   class="form-control-modern" 
+                   id="{{ form.title.id_for_label }}" 
+                   name="{{ form.title.name }}" 
+                   placeholder="Enter your essay title..."
+                   value="{{ form.title.value|default:'' }}"
+                   required>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label-modern" for="{{ form.student_name.id_for_label }}">
+              <i class="fas fa-user me-2"></i>Your Name
+            </label>
+            <input type="text" 
+                   class="form-control-modern" 
+                   id="{{ form.student_name.id_for_label }}" 
+                   name="{{ form.student_name.name }}" 
+                   placeholder="Enter your name (optional)..."
+                   value="{{ form.student_name.value|default:'' }}">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label-modern" for="{{ form.content.id_for_label }}">
+              <i class="fas fa-book me-2"></i>Essay Content
+            </label>
+            <textarea class="form-control-modern textarea-modern" 
+                      id="{{ form.content.id_for_label }}" 
+                      name="{{ form.content.name }}" 
+                      placeholder="Paste or type your essay here. The more content you provide, the better our AI can analyze and provide feedback..."
+                      required>{{ form.content.value|default:'' }}</textarea>
+          </div>
+          
+          <button type="submit" class="btn-submit">
+            <i class="fas fa-magic me-2"></i>
+            Grade My Essay
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Recent Essays Sidebar -->
+    <div class="col-lg-5">
+      <div class="recent-essays-section">
+        <h5 class="recent-title">
+          <i class="fas fa-history"></i>
+          Recent Essays
+        </h5>
+        <p class="recent-subtitle">
+          View your previously graded essays and track your writing progress over time.
+        </p>
+        
+        {% if essays %}
+          <ul class="essay-list">
+            {% for e in essays %}
+              <li class="essay-item">
+                <a href="{% url 'essays:detail' e.pk %}" class="essay-link">
+                  {{ e.title|truncatechars:40 }}
+                </a>
+                <div class="essay-meta">
+                  <span>
+                    <i class="fas fa-user me-1"></i>
+                    {{ e.student_name|default:"Anonymous" }}
+                  </span>
+                  <span class="essay-score">{{ e.score_overall|floatformat:0 }}/100</span>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+          
+          {% if essays|length >= 10 %}
+          <div class="text-center mt-3">
+            <a href="{% url 'essays:dashboard' %}" class="btn-action btn-secondary-action">
+              <i class="fas fa-chart-line me-2"></i>
+              View All Essays
+            </a>
+          </div>
+          {% endif %}
+        {% else %}
+          <div class="no-essays">
+            <i class="fas fa-inbox"></i>
+            <h6>No Essays Yet</h6>
+            <p>Submit your first essay to get started with AI-powered feedback and analysis.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

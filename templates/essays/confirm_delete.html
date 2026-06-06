@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 80px auto; background: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); text-align: center;">
+    
+    <div style="font-size: 48px; margin-bottom: 16px;">🗑️</div>
+    
+    <h2 style="color: #1a1a2e; margin-bottom: 8px;">Delete Essay?</h2>
+    
+    <p style="color: #666; margin-bottom: 8px;">You are about to permanently delete:</p>
+    
+    <div style="background: #f8f9fa; border-radius: 10px; padding: 16px; margin: 20px 0;">
+        <strong style="color: #1a1a2e; font-size: 1.1rem;">{{ essay.title }}</strong>
+        <br>
+        <small style="color: #888;">by {{ essay.author }} · Score: {{ essay.score_overall }}/100</small>
+    </div>
+    
+    <p style="color: #e74c3c; font-size: 0.9rem; margin-bottom: 24px;">
+        ⚠️ This action cannot be undone.
+    </p>
+    
+    <div style="display: flex; gap: 12px; justify-content: center;">
+        <!-- Cancel button -->
+        <a href="{% url 'essays:detail' essay.pk %}" 
+           style="padding: 12px 28px; border-radius: 8px; background: #f0f0f0; color: #333; text-decoration: none; font-weight: 600; transition: background 0.2s;">
+            Cancel
+        </a>
+        
+        <!-- Confirm delete — POST with next redirect to index -->
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="essays:index">
+            <button type="submit"
+                    style="padding: 12px 28px; border-radius: 8px; background: #e74c3c; color: white; border: none; font-weight: 600; cursor: pointer;">
+                Yes, Delete
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

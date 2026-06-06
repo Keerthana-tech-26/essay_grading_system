@@ -1,0 +1,523 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+  .chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    backdrop-filter: blur(10px);
+  }
+  
+  .chart-container canvas {
+    display: block !important;
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .dashboard-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .dashboard-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #252424 0%, #595b5d 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+  }
+
+  .dashboard-subtitle {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.1rem;
+    font-weight: 400;
+  }
+
+  .stats-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  .stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .stats-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  }
+
+  .stats-card:hover::before {
+    transform: translateX(0);
+  }
+
+  .stats-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.5rem;
+    color: white;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  }
+
+  .stats-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stats-label {
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+  }
+
+  .section-header {
+    margin: 3rem 0 2rem;
+    text-align: center;
+  }
+
+  .section-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 0.5rem;
+  }
+
+  .section-subtitle {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+  }
+
+  .chart-card {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 1.5rem;
+    height: 100%;
+    transition: all 0.3s ease;
+  }
+
+  .chart-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  }
+
+  .chart-title {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .chart-title i {
+    margin-right: 0.5rem;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .recent-essays-table {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    max-height: 350px;
+    overflow-y: auto;
+  }
+  .recent-essays-table .table tbody td {
+    color: #2d3748 !important;
+  }
+  .recent-essays-table td {
+    color: #4a5568 !important;
+  }
+  .recent-essays-table small {
+    color: #718096 !important;
+  }
+  .recent-essays-table::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .recent-essays-table::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .recent-essays-table::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+  }
+
+  .table-row-hover {
+    transition: all 0.2s ease;
+  }
+
+  .table-row-hover:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    transform: translateX(5px);
+  }
+
+  .essay-link {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .essay-link:hover {
+    color: #4facfe;
+    text-decoration: underline;
+  }
+
+  .score-badge-modern {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-align: center;
+    min-width: 60px;
+  }
+
+  .bg-success-modern {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+  }
+
+  .bg-warning-modern {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: #2d3748;
+    box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3);
+  }
+
+  .bg-danger-modern {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(250, 112, 154, 0.3);
+  }
+
+  .ai-insights-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 20px;
+    text-align: center;
+    margin: 3rem 0 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ai-insights-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" fill-opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" fill-opacity="0.1"/><circle cx="50" cy="10" r="1" fill="white" fill-opacity="0.1"/><circle cx="10" cy="60" r="1" fill="white" fill-opacity="0.1"/><circle cx="90" cy="40" r="1" fill="white" fill-opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.5;
+  }
+
+  .ai-insights-header h4 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .ai-insights-header p {
+    font-size: 1.1rem;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+    opacity: 0.9;
+  }
+
+  @media (max-width: 768px) {
+    .dashboard-title {
+      font-size: 2rem;
+    }
+    
+    .stats-number {
+      font-size: 2rem;
+    }
+    
+    .section-title {
+      font-size: 1.5rem;
+    }
+    
+    .chart-container {
+      height: 250px;
+    }
+    
+    .stats-card {
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="dashboard-header">
+    <h1 class="dashboard-title">
+      <i class="fas fa-chart-line me-3"></i>
+      Analytics Dashboard
+    </h1>
+    <p class="dashboard-subtitle">
+      Comprehensive insights into essay performance and writing trends
+    </p>
+  </div>
+  <div class="row g-4 mb-5">
+    <div class="col-lg-3 col-md-6">
+      <div class="stats-card">
+        <div class="stats-icon">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="stats-number">{{ total_essays }}</div>
+        <div class="stats-label">Total Essays</div>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+      <div class="stats-card">
+        <div class="stats-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+          <i class="fas fa-star"></i>
+        </div>
+        <div class="stats-number">{{ avg_overall|default:"—" }}</div>
+        <div class="stats-label">Avg Score</div>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+      <div class="stats-card">
+        <div class="stats-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="stats-number">{{ total_issues|default:"0" }}</div>
+        <div class="stats-label">Issues Found</div>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+      <div class="stats-card">
+        <div class="stats-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+          <i class="fas fa-robot"></i>
+        </div>
+        <div class="stats-number">{{ total_essays }}</div>
+        <div class="stats-label">AI Analyzed</div>
+      </div>
+    </div>
+  </div>
+
+  {% if total_essays == 0 %}
+  <div style="text-align:center; padding: 4rem 2rem; background: rgba(255,255,255,0.95); border-radius: 20px; margin: 2rem 0;">
+    <div style="font-size: 4rem; margin-bottom: 1rem;">📝</div>
+    <h3 style="color: #1a1a2e; margin-bottom: 1rem;">No Essays Yet</h3>
+    <p style="color: #3d4a5c; margin-bottom: 2rem;">Submit your first essay to see analytics and charts here.</p>
+    <a href="{% url 'essays:index' %}" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 12px 28px; border-radius: 25px; text-decoration: none; font-weight: 600;">
+      <i class="fas fa-plus me-2"></i>Grade an Essay
+    </a>
+  </div>
+  {% else %}
+  <div class="section-header">
+    <h2 class="section-title">
+      <i class="fas fa-chart-area me-2"></i>
+      Performance Overview
+    </h2>
+    <p class="section-subtitle">Track score trends and identify areas for improvement</p>
+  </div>
+
+  <div class="row g-4 mb-5">
+    <div class="col-lg-8">
+      <div class="chart-card">
+        <h5 class="chart-title">
+          <i class="fas fa-line-chart"></i>
+          Overall Score Trend
+        </h5>
+        <div class="chart-container">
+          <canvas id="scoreTrend"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="chart-card">
+        <h5 class="chart-title">
+          <i class="fas fa-chart-bar"></i>
+          Average Sub-Scores
+        </h5>
+        <div class="chart-container">
+          <canvas id="avgScores"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-5">
+    <div class="col-lg-6">
+      <div class="chart-card">
+        <h5 class="chart-title">
+          <i class="fas fa-exclamation-circle"></i>
+          Common Issues
+        </h5>
+        <div class="chart-container">
+          <canvas id="issuesChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="chart-card">
+        <h5 class="chart-title">
+          <i class="fas fa-clock"></i>
+          Recent Essays
+        </h5>
+        <div class="recent-essays-table">
+          <table class="table table-sm align-middle mb-0">
+            <thead class="sticky-top">
+              <tr>
+                <th style="background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 1rem;">Title</th>
+                <th style="background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 1rem;">Student</th>
+                <th style="background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 1rem;">Score</th>
+                <th style="background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 1rem;">Date</th>
+                <th style="background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 1rem;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for e in recent_essays %}
+              <tr class="table-row-hover">
+                <td>
+                  <a href="{% url 'essays:detail' e.pk %}" class="essay-link">
+                    {{ e.title|truncatechars:25 }}
+                  </a>
+                </td>
+                <td style="color: rgba(255, 255, 255, 0.8);">{{ e.student_name|default:"Anonymous" }}</td>
+                <td>
+                  <span class="score-badge-modern {% if e.score_overall >= 80 %}bg-success-modern{% elif e.score_overall >= 60 %}bg-warning-modern{% else %}bg-danger-modern{% endif %}">
+                    {{ e.score_overall|floatformat:0 }}
+                  </span>
+                </td>
+                <td>
+                  <small style="color: rgba(255, 255, 255, 0.7);">{{ e.created_at|date:"M d, H:i" }}</small>
+                </td>
+                <td>
+                  <a href="{% url 'essays:delete' e.pk %}" 
+                     title="Delete essay"
+                     style="color: #fa709a; font-size: 1.1rem; text-decoration: none; transition: color 0.2s;"
+                     onmouseover="this.style.color='#e74c3c'" 
+                     onmouseout="this.style.color='#fa709a'">
+                    <i class="fas fa-trash-alt"></i>
+                  </a>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" class="text-center" style="color: rgba(255, 255, 255, 0.5); padding: 2rem;">
+                  <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                  No essays yet. Start by submitting your first essay!
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ai-insights-header">
+    <h4>
+      <i class="fas fa-brain me-3"></i>
+      AI-Powered Insights
+    </h4>
+    <p>Advanced analysis powered by machine learning and natural language processing</p>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="chart-card">
+        <h5 class="chart-title">
+          <i class="fas fa-smile"></i>
+          Sentiment Trend
+        </h5>
+        <div class="chart-container">
+          <canvas id="sentimentTrend"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="chart-card">
+        <h5 class="chart-title">
+          <i class="fas fa-spell-check"></i>
+          Grammar Issues Over Time
+        </h5>
+        <div class="chart-container">
+          <canvas id="grammarTrend"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-2">
+    <div class="col-lg-12">
+      <div class="chart-card">
+        <h5 class="chart-title">
+          <i class="fas fa-bullseye"></i>
+          Topic Relevance Distribution
+        </h5>
+        <div class="chart-container" style="height: 200px;">
+          <canvas id="topicRelevanceChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% if total_essays > 0 %}
+{{ labels|json_script:"labels-data" }}
+{{ overall_scores|json_script:"scores-data" }}
+{{ avg_scores|json_script:"avg-data" }}
+{{ issue_labels|json_script:"issue-labels" }}
+{{ issue_values|json_script:"issue-values" }}
+{{ sentiments|json_script:"sentiments-data" }}
+{{ grammar_counts|json_script:"grammar-data" }}
+{{ topic_relevance|json_script:"topic-data" }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endif %}
+{% endblock %}

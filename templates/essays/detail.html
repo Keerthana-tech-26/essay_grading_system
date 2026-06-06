@@ -1,0 +1,634 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+  .essay-header {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 24px;
+    padding: 3rem;
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .essay-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1" fill="white" fill-opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+    opacity: 0.3;
+  }
+
+  .essay-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .essay-meta {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .essay-meta strong {
+    color: white;
+    font-weight: 600;
+  }
+
+  .metrics-section {
+    margin: 3rem 0;
+  }
+
+  .metrics-title {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .metrics-title h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+  }
+
+  .metrics-title p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+  }
+
+  .metric-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .metric-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  }
+
+  .metric-card:hover::before {
+    transform: translateX(0);
+  }
+
+  .metric-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #4facfe;
+  }
+
+  .metric-label {
+    display: block;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+  }
+
+  .metric-value {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .overall-score-section {
+    text-align: center;
+    margin: 3rem 0;
+  }
+
+  .overall-score-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 30px;
+    padding: 3rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4);
+  }
+
+  .overall-score-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="stars" width="20" height="20" patternUnits="userSpaceOnUse"><polygon points="10,2 12,8 18,8 13,12 15,18 10,14 5,18 7,12 2,8 8,8" fill="white" fill-opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23stars)"/></svg>');
+    opacity: 0.2;
+  }
+
+  .overall-score-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .overall-score-badge {
+    font-size: 4rem;
+    font-weight: 900;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    margin: 1rem 0;
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .ai-analysis-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 24px;
+    padding: 2.5rem;
+    color: white;
+    margin: 3rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ai-analysis-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="circuit" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M10,10 L40,10 L40,40 L10,40 Z" stroke="white" stroke-opacity="0.1" stroke-width="1" fill="none"/><circle cx="25" cy="25" r="3" fill="white" fill-opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23circuit)"/></svg>');
+    opacity: 0.1;
+  }
+
+  .ai-analysis-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+  }
+
+  .ai-analysis-title i {
+    margin-right: 1rem;
+    font-size: 2.5rem;
+  }
+
+  .ai-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .ai-metric {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .ai-metric:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+  }
+
+  .ai-metric-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+
+  .ai-metric-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .feedback-section {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin: 3rem 0;
+    backdrop-filter: blur(20px);
+  }
+
+  .feedback-title {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .feedback-title i {
+    margin-right: 1rem;
+    color: #4facfe;
+  }
+
+  .feedback-content {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    padding: 2rem;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #2d3748;
+    white-space: pre-wrap;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .grammar-section {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+    border-radius: 20px;
+    padding: 2rem;
+    margin: 2rem 0;
+    color: #2d3748;
+  }
+
+  .grammar-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .grammar-title i {
+    margin-right: 0.5rem;
+    color: #e17055;
+  }
+
+  .grammar-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .grammar-item {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    border-left: 4px solid #e17055;
+    transition: all 0.2s ease;
+  }
+
+  .grammar-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px rgba(225, 112, 85, 0.2);
+  }
+
+  .essay-content-section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin: 3rem 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .essay-content-title {
+    color: #2d3748;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .essay-content-title i {
+    margin-right: 1rem;
+    color: #667eea;
+  }
+
+  .essay-text {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #4a5568;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .action-section {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 24px;
+    padding: 3rem;
+    text-align: center;
+    margin-top: 3rem;
+  }
+
+  .action-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1rem;
+  }
+
+  .action-subtitle {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-action {
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-action::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .btn-action:hover::before {
+    left: 100%;
+  }
+
+  .btn-primary-action {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+  }
+
+  .btn-primary-action:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(79, 172, 254, 0.6);
+    color: white;
+  }
+
+  .btn-secondary-action {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .btn-secondary-action:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    transform: translateY(-3px);
+  }
+
+  @media (max-width: 768px) {
+    .essay-title {
+      font-size: 2rem;
+    }
+    
+    .metric-value {
+      font-size: 2rem;
+    }
+    
+    .overall-score-badge {
+      font-size: 3rem;
+      padding: 0.75rem 1.5rem;
+    }
+    
+    .essay-header, .feedback-section, .essay-content-section, .action-section {
+      padding: 2rem;
+    }
+    
+    .ai-analysis-section {
+      padding: 2rem;
+    }
+    
+    .ai-metrics {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    .action-buttons {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .btn-action {
+      width: 100%;
+      max-width: 300px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="essay-header">
+        <h1 class="essay-title">{{ essay.title }}</h1>
+        <div class="essay-meta">
+          <p class="mb-0">
+            By <strong>{{ essay.student_name|default:'Anonymous Student' }}</strong> • 
+            <i class="fas fa-calendar-alt me-1"></i>
+            {{ essay.created_at|date:"F d, Y \a\t H:i" }}
+          </p>
+        </div>
+      </div>
+      <div class="metrics-section">
+        <div class="metrics-title">
+          <h3><i class="fas fa-chart-bar me-2"></i>Performance Breakdown</h3>
+          <p>Detailed analysis of your essay's key components</p>
+        </div>
+        <div class="row g-4">
+          <div class="col-lg-3 col-md-6">
+            <div class="metric-card">
+              <div class="metric-icon">📝</div>
+              <span class="metric-label">Length</span>
+              <strong class="metric-value">{{ essay.score_length|floatformat:0 }}</strong>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <div class="metric-card">
+              <div class="metric-icon">✨</div>
+              <span class="metric-label">Clarity</span>
+              <strong class="metric-value">{{ essay.score_clarity|floatformat:0 }}</strong>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <div class="metric-card">
+              <div class="metric-icon">📚</div>
+              <span class="metric-label">Vocabulary</span>
+              <strong class="metric-value">{{ essay.score_vocabulary|floatformat:0 }}</strong>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <div class="metric-card">
+              <div class="metric-icon">🎯</div>
+              <span class="metric-label">Readability</span>
+              <strong class="metric-value">{{ essay.score_readability|floatformat:0 }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="overall-score-section">
+        <div class="overall-score-card">
+          <h3 class="overall-score-title">🏆 Overall Score</h3>
+          <div class="overall-score-badge {% if essay.score_overall >= 80 %}text-success{% elif essay.score_overall >= 60 %}text-warning{% else %}text-danger{% endif %}">
+            {{ essay.score_overall|floatformat:0 }}/100
+          </div>
+          <p class="mb-0 opacity-75">
+            {% if essay.score_overall >= 80 %}
+              Excellent work! Your essay demonstrates strong writing skills.
+            {% elif essay.score_overall >= 60 %}
+              Good effort! There's room for improvement in some areas.
+            {% else %}
+              Keep practicing! Focus on the feedback below to improve.
+            {% endif %}
+          </p>
+        </div>
+      </div>
+      <div class="ai-analysis-section">
+        <h4 class="ai-analysis-title">
+          <i class="fas fa-robot"></i>
+          AI-Powered Analysis
+        </h4>
+        <div class="ai-metrics">
+          <div class="ai-metric">
+            <div class="ai-metric-label">🎯 ML Overall Score</div>
+            <div class="ai-metric-value">{{ essay.analysis.ml_overall|default:"N/A"|floatformat:0 }}</div>
+          </div>
+          <div class="ai-metric">
+            <div class="ai-metric-label">📖 Readability (AI)</div>
+            <div class="ai-metric-value">{{ essay.analysis.readability|default:essay.score_readability|floatformat:0 }}</div>
+          </div>
+          <div class="ai-metric">
+            <div class="ai-metric-label">✅ Grammar Score</div>
+            <div class="ai-metric-value">{{ essay.analysis.grammar.score|default:"N/A" }}</div>
+          </div>
+          <div class="ai-metric">
+            <div class="ai-metric-label">😊 Sentiment</div>
+            <div class="ai-metric-value">{{ essay.analysis.sentiment|floatformat:0 }}%</div>
+          </div>
+          <div class="ai-metric">
+            <div class="ai-metric-label">🎯 Topic Relevance</div>
+            <div class="ai-metric-value">{{ essay.analysis.topic_relevance|floatformat:0 }}%</div>
+          </div>
+        </div>
+      </div>
+      {% if essay.analysis.grammar.issues %}
+      <div class="grammar-section">
+        <h5 class="grammar-title">
+          <i class="fas fa-lightbulb"></i>
+          Grammar & Spelling Suggestions
+        </h5>
+        <ul class="grammar-list">
+          {% for issue in essay.analysis.grammar.issues %}
+          <li class="grammar-item">{{ issue }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      {% if essay.analysis.corrected_text %}
+      <div class="feedback-section">
+        <h4 class="feedback-title">
+          <i class="fas fa-magic"></i>
+          Auto-Corrected Draft
+        </h4>
+        <div class="feedback-content" style="font-family: 'JetBrains Mono', monospace; font-size: 0.95rem;">{{ essay.analysis.corrected_text }}</div>
+      </div>
+      {% endif %}
+      <div class="feedback-section">
+        <h4 class="feedback-title">
+          <i class="fas fa-comments"></i>
+          Detailed Feedback
+        </h4>
+        <div class="feedback-content">{{ essay.feedback }}</div>
+      </div>
+      <div class="essay-content-section">
+        <h4 class="essay-content-title">
+          <i class="fas fa-file-text"></i>
+          Your Essay
+        </h4>
+        <div class="essay-text">{{ essay.content|linebreaks }}</div>
+      </div>
+      <div class="action-section">
+        <h4 class="action-title">What's Next?</h4>
+        <p class="action-subtitle">Continue your writing journey with these options</p>
+        <div class="action-buttons">
+          <a href="{% url 'essays:dashboard' %}" class="btn-action btn-primary-action">
+            <i class="fas fa-chart-line"></i>
+            View Dashboard
+          </a>
+          <a href="{% url 'essays:index' %}" class="btn-action btn-secondary-action">
+            <i class="fas fa-plus"></i>
+            Grade Another Essay
+          </a>
+          <a href="{% url 'essays:delete' essay.pk %}" class="btn-action" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);">
+            <i class="fas fa-trash-alt"></i>
+            Delete Essay
+          </a>
+        </div>
+        <p class="mt-3 mb-0" style="color: rgba(255, 255, 255, 0.7);">
+          <small>
+            <i class="fas fa-chart-line me-1"></i>
+            Check out your dashboard to see progress trends and detailed analytics!
+          </small>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
