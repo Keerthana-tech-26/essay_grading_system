@@ -29,7 +29,7 @@
         <!-- Confirm delete — POST with next redirect to index -->
         <form method="post">
             {% csrf_token %}
-            <input type="hidden" name="next" value="essays:index">
+            <input type="hidden" name="next" value="{{ request.GET.next|default:'essays:index' }}">
             <button type="submit"
                     style="padding: 12px 28px; border-radius: 8px; background: #e74c3c; color: white; border: none; font-weight: 600; cursor: pointer;">
                 Yes, Delete

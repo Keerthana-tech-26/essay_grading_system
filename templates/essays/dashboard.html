@@ -157,13 +157,15 @@
     background-clip: text;
   }
 
+  /* FIX: removed overflow:hidden — it breaks sticky thead */
   .recent-essays-table {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    overflow: hidden;
     max-height: 350px;
     overflow-y: auto;
+    position: relative;
   }
+
   .recent-essays-table .table tbody td {
     color: #2d3748 !important;
   }
@@ -408,55 +410,81 @@
           <i class="fas fa-clock"></i>
           Recent Essays
         </h5>
-        <div class="recent-essays-table">
-          <table class="table table-sm align-middle mb-0">
-            <thead class="sticky-top">
-              <tr>
-                <th style="background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 1rem;">Title</th>
-                <th style="background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 1rem;">Student</th>
-                <th style="background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 1rem;">Score</th>
-                <th style="background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 1rem;">Date</th>
-                <th style="background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 1rem;"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for e in recent_essays %}
-              <tr class="table-row-hover">
-                <td>
-                  <a href="{% url 'essays:detail' e.pk %}" class="essay-link">
-                    {{ e.title|truncatechars:25 }}
-                  </a>
-                </td>
-                <td style="color: rgba(255, 255, 255, 0.8);">{{ e.student_name|default:"Anonymous" }}</td>
-                <td>
-                  <span class="score-badge-modern {% if e.score_overall >= 80 %}bg-success-modern{% elif e.score_overall >= 60 %}bg-warning-modern{% else %}bg-danger-modern{% endif %}">
-                    {{ e.score_overall|floatformat:0 }}
-                  </span>
-                </td>
-                <td>
-                  <small style="color: rgba(255, 255, 255, 0.7);">{{ e.created_at|date:"M d, H:i" }}</small>
-                </td>
-                <td>
-                  <a href="{% url 'essays:delete' e.pk %}" 
-                     title="Delete essay"
-                     style="color: #fa709a; font-size: 1.1rem; text-decoration: none; transition: color 0.2s;"
-                     onmouseover="this.style.color='#e74c3c'" 
-                     onmouseout="this.style.color='#fa709a'">
-                    <i class="fas fa-trash-alt"></i>
-                  </a>
-                </td>
-              </tr>
-              {% empty %}
-              <tr>
-                <td colspan="4" class="text-center" style="color: rgba(255, 255, 255, 0.5); padding: 2rem;">
-                  <i class="fas fa-inbox fa-2x mb-2"></i><br>
-                  No essays yet. Start by submitting your first essay!
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+        <form method="post" action="{% url 'essays:bulk_delete' %}" id="bulkDeleteForm">
+          {% csrf_token %}
+          <div id="bulkDeleteBar" style="display:none; margin-bottom:0.75rem; padding:0.6rem 1rem; background:rgba(231,76,60,0.15); border-radius:10px; border:1px solid rgba(231,76,60,0.4); align-items:center; gap:1rem;">
+            <span id="selectedCount" style="color:#e74c3c; font-weight:600;">0 selected</span>
+            <button type="submit"
+                    onclick="return confirm('Delete selected essays? This cannot be undone.')"
+                    style="background:#e74c3c; color:white; border:none; padding:5px 16px; border-radius:8px; font-weight:600; cursor:pointer; font-size:0.9rem;">
+              <i class="fas fa-trash-alt me-1"></i>Delete Selected
+            </button>
+          </div>
+          <div class="recent-essays-table">
+            <table class="table table-sm align-middle mb-0">
+              <thead>
+                <tr>
+                  <th style="position:sticky; top:0; z-index:5; background:rgba(30,30,60,0.95); color:white; border:none; padding:1rem; width:40px;">
+                    <input type="checkbox" id="selectAll" style="cursor:pointer; width:15px; height:15px;">
+                  </th>
+                  <th style="position:sticky; top:0; z-index:5; background:rgba(30,30,60,0.95); color:white; border:none; padding:1rem;">Title</th>
+                  <th style="position:sticky; top:0; z-index:5; background:rgba(30,30,60,0.95); color:white; border:none; padding:1rem;">Student</th>
+                  <th style="position:sticky; top:0; z-index:5; background:rgba(30,30,60,0.95); color:white; border:none; padding:1rem;">Score</th>
+                  <th style="position:sticky; top:0; z-index:5; background:rgba(30,30,60,0.95); color:white; border:none; padding:1rem;">Date</th>
+                  <th style="position:sticky; top:0; z-index:5; background:rgba(30,30,60,0.95); color:white; border:none; padding:1rem;"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for e in recent_essays %}
+                <tr class="table-row-hover">
+                  <td><input type="checkbox" name="essay_ids" value="{{ e.pk }}" class="essay-checkbox" style="cursor:pointer; width:15px; height:15px;"></td>
+                  <td><a href="{% url 'essays:detail' e.pk %}" class="essay-link">{{ e.title|truncatechars:25 }}</a></td>
+                  <td style="color:rgba(255,255,255,0.8);">{{ e.student_name|default:"Anonymous" }}</td>
+                  <td>
+                    <span class="score-badge-modern {% if e.score_overall >= 80 %}bg-success-modern{% elif e.score_overall >= 60 %}bg-warning-modern{% else %}bg-danger-modern{% endif %}">
+                      {{ e.score_overall|floatformat:0 }}
+                    </span>
+                  </td>
+                  <td><small style="color:rgba(255,255,255,0.7);">{{ e.created_at|date:"M d, H:i" }}</small></td>
+                  <td>
+                    <a href="{% url 'essays:delete' e.pk %}?next=essays:dashboard"
+                       title="Delete essay"
+                       style="color:#fa709a; font-size:1.1rem; text-decoration:none;"
+                       onmouseover="this.style.color='#e74c3c'"
+                       onmouseout="this.style.color='#fa709a'">
+                      <i class="fas fa-trash-alt"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center" style="color:rgba(255,255,255,0.5); padding:2rem;">
+                    <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                    No essays yet. Start by submitting your first essay!
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </form>
+        <script>
+        (function(){
+          const sel = document.getElementById('selectAll');
+          const cbs = document.querySelectorAll('.essay-checkbox');
+          const bar = document.getElementById('bulkDeleteBar');
+          const cnt = document.getElementById('selectedCount');
+          function update(){
+            const n = document.querySelectorAll('.essay-checkbox:checked').length;
+            bar.style.display = n > 0 ? 'flex' : 'none';
+            cnt.textContent = n + ' selected';
+            sel.indeterminate = n > 0 && n < cbs.length;
+            sel.checked = cbs.length > 0 && n === cbs.length;
+          }
+          sel.addEventListener('change', function(){ cbs.forEach(cb => cb.checked = this.checked); update(); });
+          cbs.forEach(cb => cb.addEventListener('change', update));
+        })();
+        </script>
       </div>
     </div>
   </div>

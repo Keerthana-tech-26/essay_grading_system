@@ -3,7 +3,7 @@
 {% block extra_css %}
 <style>
   .essay-header {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.75) 100%);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 24px;
@@ -28,21 +28,21 @@
   .essay-title {
     font-size: 2.5rem;
     font-weight: 700;
-    color: white;
+    color: #1a1a2e;
     margin-bottom: 1rem;
     position: relative;
     z-index: 1;
   }
 
   .essay-meta {
-    color: rgba(255, 255, 255, 0.8);
+    color: #3d4a5c;
     font-size: 1.1rem;
     position: relative;
     z-index: 1;
   }
 
   .essay-meta strong {
-    color: white;
+    color: #1a1a2e;
     font-weight: 600;
   }
 
@@ -58,12 +58,12 @@
   .metrics-title h3 {
     font-size: 2rem;
     font-weight: 700;
-    color: white;
+    color: #1a1a2e;
     margin-bottom: 0.5rem;
   }
 
   .metrics-title p {
-    color: rgba(255, 255, 255, 0.7);
+    color: #3d4a5c;
     font-size: 1rem;
   }
 
@@ -349,7 +349,7 @@
   }
 
   .action-section {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 24px;
@@ -423,12 +423,12 @@
 
   .btn-secondary-action {
     background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: #1a1a2e;
+    border: 2px solid #1a1a2e;
   }
 
   .btn-secondary-action:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: #1a1a2e;
     color: white;
     transform: translateY(-3px);
   }
@@ -605,8 +605,8 @@
         <div class="essay-text">{{ essay.content|linebreaks }}</div>
       </div>
       <div class="action-section">
-        <h4 class="action-title">What's Next?</h4>
-        <p class="action-subtitle">Continue your writing journey with these options</p>
+        <h4 class="action-title" style="color: #1a1a2e;">What's Next?</h4>
+        <p class="action-subtitle" style="color: #3d4a5c;">Continue your writing journey with these options</p>
         <div class="action-buttons">
           <a href="{% url 'essays:dashboard' %}" class="btn-action btn-primary-action">
             <i class="fas fa-chart-line"></i>
@@ -621,7 +621,7 @@
             Delete Essay
           </a>
         </div>
-        <p class="mt-3 mb-0" style="color: rgba(255, 255, 255, 0.7);">
+        <p class="mt-3 mb-0" style="color: #3d4a5c;">
           <small>
             <i class="fas fa-chart-line me-1"></i>
             Check out your dashboard to see progress trends and detailed analytics!

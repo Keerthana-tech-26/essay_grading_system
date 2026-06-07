@@ -8,7 +8,7 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 try:
     import language_tool_python
-    _LT = language_tool_python.LanguageToolPublicAPI('en-US')
+    _LT = language_tool_python.LanguageTool('en-US')
 except Exception:
     _LT = None
 
@@ -236,7 +236,7 @@ def grammar_suggestions(text: str, max_issues: int = 20) -> Dict[str, object]:
                 rep = ", ".join(m.replacements[:3]) if m.replacements else ""
                 issues.append({
                     "message": m.message,
-                    "context": text[max(0, m.offset-20): m.offset + m.errorLength + 20],
+                    "context": text[max(0, m.offset-20): m.offset + m.error_length + 20],
                     "suggest": rep
                 })
             corrected = language_tool_python.utils.correct(text, matches)
@@ -281,9 +281,10 @@ def topic_relevance(text: str, topic: Optional[str] = None, keywords: Optional[L
             essay_emb = _ST_MODEL.encode(text, convert_to_tensor=True)
             raw_sim = float(st_util.cos_sim(title_emb, essay_emb)[0][0])
 
-            # Scale: empirically, on-topic essays score 0.3-0.8, off-topic 0.1-0.3
-            # Map 0.2 -> 0, 0.4 -> 50, 0.6 -> 85, 0.8 -> 100
-            scaled = (raw_sim - 0.2) / 0.6 * 100.0
+            # Non-linear scaling using sqrt to boost mid-range scores
+            # raw 0.20 -> 0%, 0.38 -> 54%, 0.53 -> 74%, 0.74 -> 95%
+            norm = max(0.0, min(1.0, (raw_sim - 0.20) / 0.60))
+            scaled = math.sqrt(norm) * 100.0
             return round(max(0.0, min(100.0, scaled)), 2)
         except Exception:
             pass

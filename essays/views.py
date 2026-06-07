@@ -86,7 +86,7 @@ def delete_essay(request, pk):
         title = essay.title
         essay.delete()
         messages.success(request, f'Essay "{title}" deleted successfully.')
-        next_url = request.POST.get('next', 'essays:index')
+        next_url = request.POST.get('next') or request.GET.get('next') or 'essays:index'
         return redirect(next_url)
     return render(request, 'essays/confirm_delete.html', {'essay': essay})
 
@@ -115,7 +115,7 @@ def dashboard(request):
                 result = essay.cached_result
             else:
                 try:
-                    result = grade_text(essay.content)
+                    result = grade_text(essay.content, title=essay.title)
                 except Exception as e:
                     print(f"Grading error for essay {essay.pk}: {e}")
                     result = {
@@ -148,25 +148,28 @@ def dashboard(request):
                 issue_counts['Repeated words'] += 1
             if len(meta.get('misspellings', [])) > 0:
                 issue_counts['Misspellings'] += 1          
-            ai_data = result.get('ai', {})
+            # Prefer saved analysis (has correct title-based topic_relevance and sentiment)
+            saved_analysis = essay.analysis if isinstance(essay.analysis, dict) else {}
+            ai_data = saved_analysis if saved_analysis else result.get('ai', {})
+
             if ai_data:
                 sentiment_val = ai_data.get('sentiment', 0)
                 if isinstance(sentiment_val, dict):
                     sentiment_val = sentiment_val.get('positivity', 0)
                 sentiments.append(float(sentiment_val))
-                
+
                 grammar_data = ai_data.get('grammar', {})
                 if isinstance(grammar_data, dict):
                     grammar_issues = grammar_data.get('issues', [])
                     grammar_counts.append(len(grammar_issues))
                 else:
                     grammar_counts.append(0)
-                
+
                 topic_rel = ai_data.get('topic_relevance', 0)
                 if isinstance(topic_rel, dict):
                     topic_rel = topic_rel.get('score', 0)
                 topic_rel = float(topic_rel)
-                
+
                 if topic_rel >= 70:
                     topic_relevance_counts["High"] += 1
                 elif topic_rel >= 40:
@@ -174,7 +177,7 @@ def dashboard(request):
                 else:
                     topic_relevance_counts["Low"] += 1
             else:
-                sentiments.append(50.0)  
+                sentiments.append(50.0)
                 grammar_counts.append(0)
                 topic_relevance_counts["Low"] += 1
                 
@@ -220,3 +223,14 @@ def dashboard(request):
     print(f"Sentiments: {len(sentiments)}, Grammar: {len(grammar_counts)}")
     
     return render(request, 'essays/dashboard.html', context)
+
+def bulk_delete_essays(request):
+    if request.method == 'POST':
+        ids = request.POST.getlist('essay_ids')
+        if ids:
+            deleted_count, _ = Essay.objects.filter(pk__in=ids).delete()
+            messages.success(request, f'{deleted_count} essay(s) deleted successfully.')
+        else:
+            messages.warning(request, 'No essays selected.')
+        return redirect('essays:dashboard')
+    return redirect('essays:dashboard')
